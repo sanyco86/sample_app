@@ -1,4 +1,4 @@
-<%= render 'shared/error_messages' %>
+<%= render 'shared/error_messages', object: f.object %>
 
 <%= f.label :name %>
 <%= f.text_field :name %>
@@ -9,5 +9,5 @@
 <%= f.label :password %>
 <%= f.password_field :password %>
 
-<%= f.label :password_confirmation, 'Confirm Password' %>
+<%= f.label :password_confirmation, 'Confirmation' %>
 <%= f.password_field :password_confirmation %>
