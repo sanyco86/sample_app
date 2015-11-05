@@ -19,6 +19,10 @@ describe User do
   it { should respond_to(:admin) }
   it { should respond_to(:microposts) }
   it { should respond_to(:feed) }
+  it { should respond_to(:relationships) }
+  it { should respond_to(:followed_users) }
+  it { should respond_to(:reverse_relationships) }
+  it { should respond_to(:followers) }
 
   it { should be_valid }
   it { should_not be_admin }
@@ -127,7 +131,6 @@ describe User do
   end
 
   describe 'micropost associations' do
-
     before { @user.save }
     let!(:older_micropost) do
       FactoryGirl.create(:micropost, user: @user, created_at: 1.day.ago)
@@ -148,14 +151,49 @@ describe User do
         expect(Micropost.where(id: micropost.id)).to be_empty
       end
     end
+
     describe 'status' do
       let(:unfollowed_post) do
         FactoryGirl.create(:micropost, user: FactoryGirl.create(:user))
+      end
+      let(:followed_user) { FactoryGirl.create(:user) }
+
+      before do
+        @user.follow!(followed_user)
+        3.times { followed_user.microposts.create!(content: 'Lorem ipsum') }
       end
 
       it { expect(@user.feed).to include(newer_micropost) }
       it { expect(@user.feed).to include(older_micropost) }
       it { expect(@user.feed).not_to include(unfollowed_post) }
+      it 'feed should include each microposts' do
+        followed_user.microposts.each do |micropost|
+          expect(@user.feed).to include(micropost)
+        end
+      end
+    end
+  end
+
+  describe 'following' do
+    let(:other_user) { FactoryGirl.create(:user) }
+    before do
+      @user.save
+      @user.follow!(other_user)
+    end
+
+    it { should be_following(other_user) }
+    it { expect(@user.followed_users).to include(other_user) }
+
+    describe 'followed user' do
+      subject { other_user }
+      it { expect(other_user.followers).to include(@user)}
+    end
+
+    describe 'and unfollowing' do
+      before { @user.unfollow!(other_user) }
+
+      it { should_not be_following(other_user) }
+      it { expect(@user.followed_users).not_to include(other_user) }
     end
   end
 end
