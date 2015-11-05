@@ -16,6 +16,8 @@ gem 'faker'
 gem 'will_paginate'
 gem 'bootstrap-will_paginate'
 
+gem 'slim-rails'
+
 gem 'sdoc', '~> 0.4.0', group: :doc
 
 group :development, :test do
